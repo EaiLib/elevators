@@ -15,12 +15,12 @@ def main() -> None:
         None
     """
     pygame.init()
-    pygame.mixer.init()  # Inicializar el mezclador de sonido
+    pygame.mixer.init()  
 
     buildings_info: list[list[int]] = [
-        [15, 3],  # building1: 15 floors, 3 elevators
-        [10, 2],  # building2: 10 floors, 2 elevators
-        [20, 4]   # building3: 20 floors, 4 elevators
+        [15, 3],  
+        [10, 2],  
+        [20, 4]   
     ]
     
     simulation: BuildingSimulation = BuildingSimulation(buildings_info, 900, 1700)
