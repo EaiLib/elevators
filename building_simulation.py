@@ -16,7 +16,7 @@ class BuildingSimulation:
         width_screen (int): The width of the screen in pixels.
     """
 
-    def __init__(self, buildings_info: List[List[int]], height_screen: int, width_screen: int) -> None:
+    def __init__(self, buildings_content: List[List[int]], height_screen: int, width_screen: int) -> None:
         """
         Initializes the BuildingSimulation object.
 
@@ -24,46 +24,46 @@ class BuildingSimulation:
         based on the provided information and storing them in a list.
 
         Args:
-            buildings_info (List[List[int]]): A list of lists containing building information.
+            buildings_content (List[List[int]]): A list of lists containing building information.
                 Each inner list contains the number of floors and elevators for a building.
             height_screen (int): The height of the screen in pixels.
             width_screen (int): The width of the screen in pixels.
         """
         self.height_screen = height_screen
         self.width_screen = width_screen
-        self.buildings = self._create_buildings(buildings_info)
+        self.buildings = self.create_buildings(buildings_content)
 
-    def _create_buildings(self, buildings_info: List[List[int]]) -> List:
+    def create_buildings(self, buildings_content: List[List[int]]) -> List:
         """
         Creates building objects based on the provided information.
 
         Args:
-            buildings_info (List[List[int]]): A list of lists containing building information.
+            buildings_content (List[List[int]]): A list of lists containing building information.
 
         Returns:
             List: A list of building objects.
         """
-        sum_buildings = sum(info[1] / 2 + 1 for info in buildings_info)
-        max_floor = max(info[0] for info in buildings_info) + 1
+        sum_buildings = sum(content[1] / 2 + 1 for content in buildings_content)
+        max_floor = max(content[0] for content in buildings_content) + 1
 
         buildings = []
         count = 0
-        for info in buildings_info:
+        for content in buildings_content:
             position = self.width_screen / sum_buildings * count + 10
             building = factory(
                 "building",
                 position,
-                info[0],
-                info[1],
+                content[0],
+                content[1],
                 (self.width_screen - 20) / sum_buildings,
                 (self.height_screen - 10) / max_floor,
                 self.height_screen
             )
             buildings.append(building)
-            count += info[1] / 2 + 1
+            count += content[1] / 2 + 1
         return buildings
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def render_simulation(self, surface: pygame.Surface) -> None:
         """
         Draws the buildings on the screen.
 
@@ -73,10 +73,10 @@ class BuildingSimulation:
             surface (pygame.Surface): The surface to draw the buildings on.
         """
         for building in self.buildings:
-            building.draw(surface)
+            building.draw_floors_and_elevators(surface)
             building.process_elevator_movement()
 
-    def handle_events(self, mouse_pos: Tuple[int, int]) -> None:
+    def process_simulation_events(self, mouse_pos: Tuple[int, int]) -> None:
         """
         Handles user events such as mouse clicks.
 
@@ -87,7 +87,7 @@ class BuildingSimulation:
             mouse_pos (Tuple[int, int]): The position of the mouse cursor.
         """
         for building in self.buildings:
-            building.handle_events(mouse_pos)
+            building.assign_and_dispatch_nearest_elevator(mouse_pos)
 
     def run(self) -> None:
         """
@@ -98,7 +98,7 @@ class BuildingSimulation:
         """
         pygame.init()
         screen = pygame.display.set_mode((self.width_screen, self.height_screen))
-        pygame.display.set_caption("Building Floors")
+        pygame.display.set_caption("Elevator Challenge")
         clock = pygame.time.Clock()
 
         running = True
@@ -107,10 +107,10 @@ class BuildingSimulation:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    self.handle_events(pygame.mouse.get_pos())
+                    self.process_simulation_events(pygame.mouse.get_pos())
 
-            screen.fill((255, 255, 255))  # Fill the screen with white
-            self.draw(screen)
+            screen.fill((255, 255, 255))
+            self.render_simulation(screen)
             pygame.display.flip()
             clock.tick(60)
 

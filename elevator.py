@@ -2,6 +2,10 @@ import pygame
 import queue
 from enum import Enum
 
+
+
+SUSPEND = 2
+
 class Direction(Enum):
     UP = "up"
     DOWN = "down"
@@ -57,7 +61,7 @@ class Elevator:
         self.travel_direction = Direction.PLACE
         self.stay = False
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw_elevator_on_the_screen(self, surface: pygame.Surface) -> None:
         """Draw the elevator on the screen.
 
         Args:
@@ -101,11 +105,11 @@ class Elevator:
             None
         """
         self.stay_time += current_time - last_time
-        if self.stay_time >= 2:
+        if self.stay_time >= SUSPEND:
             self.stay = False
             self.stay_time = 0
 
-    def process_movement(self, height_floor: int, current_time: float, last_time: float) -> int:
+    def process_elevator_movement(self, height_floor: int, current_time: float, last_time: float) -> int:
         """Process the movement of the elevator.
 
         Args:
@@ -117,7 +121,7 @@ class Elevator:
             int: Indicates whether the elevator has reached the target floor (-1 for no target floor, 0 for in motion, 1 for reached).
         """
         if self.time_elapsed > 0:
-            self.add_time(last_time - current_time)
+            self.update_elevator_elapsed_time(last_time - current_time)
         else:
             self.time_elapsed = 0
         if self.stay:
@@ -135,7 +139,7 @@ class Elevator:
                 self.travel_direction = Direction.DOWN
         return -1
 
-    def add_to_queue(self, number: int) -> None:
+    def add_elevator_to_queue(self, number: int) -> None:
         """Add a floor to the elevator's queue.
 
         Args:
@@ -145,11 +149,11 @@ class Elevator:
             None
         """
         self.queue.put(number)
-        time_to_add = abs(number - self.last_floor) * self.elevator_speed + 2
+        time_to_add = abs(number - self.last_floor) * self.elevator_speed + SUSPEND
         self.last_floor = number
-        self.add_time(time_to_add)
+        self.update_elevator_elapsed_time(time_to_add)
 
-    def add_time(self, number: float) -> None:
+    def update_elevator_elapsed_time(self, number: float) -> None:
         """Add time to the elevator's elapsed time.
 
         Args:
@@ -160,7 +164,7 @@ class Elevator:
         """
         self.time_elapsed += number
 
-    def calculate_time(self, floor: int) -> float:
+    def calculate_time_for_a_certain_floor(self, floor: int) -> float:
         """Calculate the time needed to reach a certain floor.
 
         Args:

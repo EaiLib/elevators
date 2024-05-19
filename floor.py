@@ -41,7 +41,7 @@ class Floor:
         self.number_color = (0, 0, 0)
         self.time = 0
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw_floor_on_screen(self, surface: pygame.Surface) -> None:
         """
         Draw the floor on the given surface.
 
@@ -51,15 +51,19 @@ class Floor:
         Returns:
             None
         """
-        self._draw_bricks(surface)
-        self._draw_black_line(surface)
-        self._draw_number(surface)
+        self.draw_bricks_on_screen(surface)
+        self.draw_black_line(surface)
+        self.draw_number_for_floor(surface)
         if self.time > 0:
-            self._draw_timer(surface)
+            self.draw_timer_on_floor(surface)
 
-    def _draw_bricks(self, surface: pygame.Surface) -> None:
+    def draw_bricks_on_screen(self, surface: pygame.Surface) -> None:
         """
         Draw the brick pattern on the floor.
+            
+        This method draws a series of small rectangles (bricks) on the given surface to create a brick pattern.
+        The bricks are drawn row by row, and every alternate row is offset to create a staggered effect.
+
 
         Args:
             surface (pygame.Surface): The surface to draw the brick pattern on.
@@ -68,18 +72,18 @@ class Floor:
             None
         """
         pygame.draw.rect(surface, self.color, self.rect)
-        brick_width = 4
-        brick_height = 2
-        spacing = 1
-        i = 0
-        for row in range(0, self.rect.height - brick_height, brick_height + spacing):
-            col_start = int(brick_width / 2) if i % 2 == 0 else 0
+        brick_width = 6
+        brick_height = 4
+        spacing = 2
+        for row_index, row in enumerate(range(0, self.rect.height - brick_height, brick_height + spacing)):
+            col_start = brick_width // 2 if row_index % 2 == 0 else 0
             for col in range(col_start, self.rect.width - brick_width, brick_width + spacing):
                 brick_rect = pygame.Rect(self.rect.left + col, self.rect.top + row, brick_width, brick_height)
                 pygame.draw.rect(surface, self.brick_color, brick_rect)
-            i += 1
 
-    def _draw_black_line(self, surface: pygame.Surface) -> None:
+            
+
+    def draw_black_line(self, surface: pygame.Surface) -> None:
         """
         Draw the black line at the bottom of the floor.
 
@@ -93,7 +97,7 @@ class Floor:
                                 self.rect.width, self.height_black_line)
         pygame.draw.rect(surface, self.black_line_color, line_rect)
 
-    def _draw_number(self, surface: pygame.Surface) -> None:
+    def draw_number_for_floor(self, surface: pygame.Surface) -> None:
         """
         Draw the floor number on the floor.
 
@@ -104,13 +108,13 @@ class Floor:
             None
         """
         number_rect_width, number_rect_height = 20, 16
-        number_rect_position, self.number_color = self._calculate_number_position(number_rect_width, number_rect_height)
+        number_rect_position, self.number_color = self.calculate_number_position(number_rect_width, number_rect_height)
         pygame.draw.rect(surface, (192, 192, 192), number_rect_position)
         number_text = self.font.render(str(self.number), True, self.number_color)
         text_rect = number_text.get_rect(center=number_rect_position.center)
         surface.blit(number_text, text_rect)
 
-    def _calculate_number_position(self, width: int, height: int) -> tuple[pygame.Rect, tuple[int, int, int]]:
+    def calculate_number_position(self, width: int, height: int) -> tuple[pygame.Rect, tuple[int, int, int]]:
         """
         Calculate the position and color settings for the floor number.
 
@@ -133,7 +137,7 @@ class Floor:
                                    width, height)
         return position, color
 
-    def _draw_timer(self, surface: pygame.Surface) -> None:
+    def draw_timer_on_floor(self, surface: pygame.Surface) -> None:
         """
         Draw the timer on the floor.
 
@@ -147,7 +151,7 @@ class Floor:
         timer_rect = timer_text.get_rect(center=(self.rect.left + 20, self.rect.centery))
         surface.blit(timer_text, timer_rect)
 
-    def handle_events(self, mouse_pos: tuple[int, int]) -> int:
+    def handle_events_on_floor(self, mouse_pos: tuple[int, int]) -> int:
         """
         Handle mouse events on the floor.
 

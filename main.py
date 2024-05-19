@@ -1,4 +1,4 @@
-import pygame
+import pygame 
 from typing import List
 
 from building_simulation import BuildingSimulation
@@ -16,8 +16,8 @@ def main() -> None:
 
     buildings_info: List[List[int]] = [
         [15, 3],
-        [10, 2],
-        [20, 4]
+        [9, 2],
+        [20, 5]
     ]
 
     simulation = BuildingSimulation(buildings_info, 900, 1700)

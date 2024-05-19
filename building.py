@@ -35,15 +35,15 @@ class Building:
         self.floor_height = floor_height
 
         self.elevators = [
-            factory("elevator", i, floor_height, floor_width / 2, height_screen, floor_width * (i / 2 + 1) + position)
-            for i in range(num_elevators)
+            factory("elevator", elevator_index, floor_height, floor_width / 2, height_screen, floor_width * (elevator_index / 2 + 1) + position)
+            for elevator_index in range(num_elevators)
         ]
         self.floors = [
-            factory("floor", i, position, height_screen - (i + 1) * floor_height, floor_width, floor_height)
-            for i in range(num_floors + 1)
+            factory("floor", floor_number, position, height_screen - (floor_number + 1) * floor_height, floor_width, floor_height)
+            for floor_number in range(num_floors + 1)
         ]
 
-    def draw(self, surface: pygame.Surface) -> None:
+    def draw_floors_and_elevators(self, surface: pygame.Surface) -> None:
         """
         Draws the floors and elevators on the provided surface.
 
@@ -54,11 +54,11 @@ class Building:
             None
         """
         for floor in self.floors:
-            floor.draw(surface)
-        for elv in self.elevators:
-            elv.draw(surface)
+            floor.draw_floor_on_screen(surface)
+        for elevator in self.elevators:
+            elevator.draw_elevator_on_the_screen(surface)
 
-    def handle_events(self, mouse_pos: Tuple[int, int]) -> None:
+    def assign_and_dispatch_nearest_elevator(self, mouse_pos: Tuple[int, int]) -> None:
         """
         Handles mouse click events and assigns the nearest elevator to the clicked floor.
 
@@ -69,20 +69,20 @@ class Building:
             None
         """
         for floor in self.floors:
-            if floor.handle_events(mouse_pos) == floor.number:
-                min_time = float('inf')
-                min_elv = None
-                for elv in self.elevators:
-                    if elv.target_floor == floor.number:
+            if floor.handle_events_on_floor(mouse_pos) == floor.number:
+                minimum_time_approach = float('inf')
+                nearest_elevator = None
+                for elevator in self.elevators:
+                    if elevator.target_floor == floor.number:
                         return
-                    time_elv = elv.calculate_time(floor.number)
-                    if time_elv < min_time:
-                        min_time = time_elv
-                        min_elv = elv
+                    time_elevator = elevator.calculate_time_for_a_certain_floor(floor.number)
+                    if time_elevator < minimum_time_approach:
+                        minimum_time_approach = time_elevator
+                        nearest_elevator = elevator
 
-                if min_elv is not None:
-                    min_elv.add_to_queue(floor.number)
-                    floor.increment_timer(min_time)
+                if nearest_elevator is not None:
+                    nearest_elevator.add_elevator_to_queue(floor.number)
+                    floor.increment_timer(minimum_time_approach)
                 return
 
     def process_elevator_movement(self) -> None:
@@ -95,11 +95,40 @@ class Building:
         Returns:
             None
         """
-        current_time = pygame.time.get_ticks() / 1000
-        for elv in self.elevators:
-            target_floor = elv.target_floor
+        running_program_time = pygame.time.get_ticks() / 1000
+        self.update_elevator_movement(running_program_time)
+        self.update_floor_timers(running_program_time)
+        self.last_time = running_program_time
+
+    def update_elevator_movement(self, current_time: float) -> None:
+        """
+        Update elevator movement.
+
+        This method iterates through all elevators, calculates their movements,
+        and updates the elevators' positions.
+
+        Args:
+            current_time (float): The current time in seconds.
+
+        Returns:
+            None
+        """
+        for elevator in self.elevators:
+            target_floor = elevator.target_floor
             height_floor = self.floors[target_floor].get_rect().top
-            elv.process_movement(height_floor, current_time, self.last_time)
+            elevator.process_elevator_movement(height_floor, current_time, self.last_time)
+
+    def update_floor_timers(self, current_time: float) -> None:
+        """
+        Update floor timers.
+
+        This method iterates through all floors and updates their timers.
+
+        Args:
+            current_time (float): The current time in seconds.
+
+        Returns:
+            None
+        """
         for floor in self.floors:
             floor.timer(current_time, self.last_time)
-        self.last_time = current_time
