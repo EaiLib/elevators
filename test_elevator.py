@@ -30,7 +30,7 @@ class TestFloor(unittest.TestCase):
         surface = pygame.Surface((800, 600))
         floor = Floor(number=1, x=100, y=100, width=200, height=20)
         floor.draw_floor_on_screen(surface)
-        # Add your assertions here based on the expected outcome
+        
 
 if __name__ == '__main__':
     unittest.main()
