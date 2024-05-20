@@ -1,5 +1,6 @@
 import pygame
 from typing import List, Tuple
+import logging
 
 class Building:
     """
@@ -68,8 +69,10 @@ class Building:
         Returns:
             None
         """
+        logging.info(f"Mouse clicked at position {mouse_pos}")
         for floor in self.floors:
             if floor.handle_events_on_floor(mouse_pos) == floor.number:
+                logging.info(f"Floor {floor.number} clicked")
                 minimum_time_approach = float('inf')
                 nearest_elevator = None
                 for elevator in self.elevators:
@@ -81,6 +84,7 @@ class Building:
                         nearest_elevator = elevator
 
                 if nearest_elevator is not None:
+                    logging.info(f"Dispatching elevator {nearest_elevator.number} to floor {floor.number}")
                     nearest_elevator.add_elevator_to_queue(floor.number)
                     floor.increment_timer(minimum_time_approach)
                 return

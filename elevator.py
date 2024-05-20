@@ -1,6 +1,7 @@
 import pygame
 import queue
 from enum import Enum
+import logging
 
 
 
@@ -148,6 +149,7 @@ class Elevator:
         Returns:
             None
         """
+        logging.info(f"Elevator {self.number} adding floor {number} to queue")
         self.queue.put(number)
         time_to_add = abs(number - self.last_floor) * self.elevator_speed + SUSPEND
         self.last_floor = number
